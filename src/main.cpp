@@ -420,7 +420,7 @@ void inline GA_Parrel(Graph &G, vector<service>&ser,ofstream&outfile)
 	taskPath*Path = new taskPath[Task];
 	GetPath(G,Path);
 	cout<<"asdassdasdsads"<<endl;
-	NewGAParrel Gs(ser,Path,G,outfile);
+	NewGAParrel Gs(ser,Path,G);
 	Gs.GAsearch();
 	delete[]Path;
 }

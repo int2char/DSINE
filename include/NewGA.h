@@ -97,8 +97,8 @@ class NewGA
 			map<pair<int,int>,double>wsigu;
 			map<pair<int,pair<int,int>>,double>overo;
 			vector<double> tsum(ser.size(),-1e10);
-			double alpha=4;
-			double q=0.95;
+			double alpha=6;
+			double q=1.0;//0.98;
 			std::vector<double>keep(ser.size(),1000);
 			cout<<"asd"<<endl;
 			//for(int i=0;i<ser.size();i++)
@@ -107,12 +107,12 @@ class NewGA
 			for(int i=0;i<ser.size();i++)
 			{
 				double as=0;
-				int num=min(_PathSets[i].num,7);
-				int j=rand()%num;
+				int num=min(_PathSets[i].num,5);
+				int j=0;//rand()%num;
 				if(_PathSets[i].Pathset[j][0]>-1)
 					{
 						std::vector<double> v;
-						x[i].push_back(100);
+						x[i].push_back(0);
 						spy[i].push_back(100);
 						spu[i].push_back(v);
 						for(int M=0;M<EDge;M++)
@@ -130,11 +130,11 @@ class NewGA
 					overtime[i].push_back(1);
 				for(int jj=1;jj<num;jj++)
 					{
-						int j=rand()%num;//(num-1)+1;
+						int j=jj;//rand()%num;//(num-1)+1;
 						if(_PathSets[i].Pathset[j][0]>-1)
 							{
 								std::vector<double> v;
-								x[i].push_back(100);
+								x[i].push_back(0);
 								spy[i].push_back(100);
 								spu[i].push_back(v);
 								for(int M=0;M<EDge;M++)
@@ -164,7 +164,7 @@ class NewGA
 			double beta=0.05;
 			double gama=0.05;
 			int counter=0;
-			for(int t=0;t<200000;t++)
+			for(int t=0;t<1000;t++)
 			{
 
 				//cout<<"before init "<<endl;
@@ -194,12 +194,13 @@ class NewGA
 							if(esigxt[i]-capacity[i]>1)
 								{
 									counter++;
-									if(counter>200000&&beta>0){
-										beta=0;//beta/1000;
-										gama/=10;
+									if(counter>100000&&beta>0){
+										beta=0;//beta/1000;//beta/1000;
+										gama/=5;
 										//gama=gama/2;
 										cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<endl;
 									}
+									//cout<<"adding........."<<" "<<u[i]<<endl;
 									tu[i]=u[i]+gama*u[i]*(esigxt[i]-capacity[i])/capacity[i];
 							}	
 							else
@@ -227,8 +228,7 @@ class NewGA
 					//if(flag[i]>0.0&&asigxt[i]-pow(y[i],q)<0)
 						//ty[i]=y[i];//(0.05/(2*alpha+q-1))*y[i]*(flag[i]);
 					//else
-					ty[i]=y[i]+(0.05/(2*(alpha+q-1)))*y[i]*(asigxt[i]-pow(y[i],q))/pow((y[i]),q);
-					tspy[i][ids[i]]=spy[i][ids[i]]+((1-q)/(2*(alpha+q-1)))*spy[i][ids[i]]*(asigxt[i]-pow(spy[i][ids[i]],q))/pow((spy[i][ids[i]]),q);
+					ty[i]=y[i]+(0.05/(2*(alpha+q-1)))*(asigxt[i]-pow(y[i],q));
 				}
 				//cout<<"agter y"<<endl;
 				for(int i=0;i<ser.size();i++)
@@ -249,14 +249,14 @@ class NewGA
 							}
 							toto+=data;
 							tx[i].push_back(data);
-							//tx[i][j]=pow(pow(ty[i],-alpha)/data,1/(1-q))*ty[i];
+							tx[i][j]=pow(pow(ty[i],-alpha)/data,10)*ty[i];
 						}
 						cc[i][id]++;
 						//if(id==ids[i]&&flag[i]>0)sum=max(sum,tsum[i]);
-						if(id<0)cout<<"erro!!!!!!!!!"<<endl;
+						//if(id<0)cout<<"erro!!!!!!!!!"<<endl;
 						for(int j=0;j<tx[i].size();j++)
 							tx[i][j]=0;
-						tx[i][id]=pow(pow(ty[i],-alpha)/sum,1/(1-q))*ty[i];
+						tx[i][id]=pow(pow(ty[i],-alpha)/sigu[make_pair(i,id)],10)*ty[i];
 						//tx[i][id]=pow(pow(tspy[i][id],-alpha)/sum,1/(1-q))*tspy[i][id];
 						//cout<<tspy[i][id]<<" "<<sum<<" "<<tx[i][id]<<endl;
 						tsum[i]=sum;
@@ -300,15 +300,19 @@ class NewGA
 				spy=tspy;
 				wsigu=sigu;
 				for(int i=0;i<ser.size();i++)
-					objective+=-pow(asigxt[i],-3)/3;
+					objective+=-pow(asigxt[i],-5)/5;
 				if(objective>bestv&&overflow<100)
 				{
 					bestv=objective;
 					bids=ids;
 				}
+				//for(int i=0;i<ser.size();i++)
+					//cout<<x[i][ids[i]]<<" ";//"("<<//u[i]<<" "<<esigxt[i]<<")"<<" ";
+				//cout<<endl;
 				cout<<"obj is: "<<overflow<<" "<<counter<<" "<<toto<<" "<<objective<<" "<<counter<<endl;
 			}
-			int toto=0;
+			/*int toto=0;
+
 			for(int i=0;i<ser.size();i++)
 				{	
 					cout<<endl;
@@ -316,10 +320,10 @@ class NewGA
 						cout<<cc[i][j]/15000<<" ";
 				}
 			cout<<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"<<endl;
-			for(int i=0;i<ser.size();i++)
-				cout<<ids[i]<<endl;
+			//for(int i=0;i<ser.size();i++)
+			//	cout<<ids[i]<<endl;
 			cout<<"bestv is "<<bestv<<endl;
-			cout<<"toto is "<<toto<<endl;
+			cout<<"toto is "<<toto<<endl;*/
 			return bids;
 		};
 	};
