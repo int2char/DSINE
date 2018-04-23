@@ -28,10 +28,18 @@ public:
 	{
 		std::vector<service> nser;
 		int c=0;
+		std::vector<int> flag(ser.size(),-1);
 		for(int i=0;i<ser.size();i++)
-			if(_PathSets[i].num>=4)
-				serv.push_back(ser[i]),c++;
-
+			{	
+				int co=0;
+				if(_PathSets[i].num>=4)
+					while(_PathSets[i].Pathset[co][0]>=0&&co<4)co++;
+				if(i!=77&&i!=168&&co>=4)
+					{	
+						flag[i]=1;
+						serv.push_back(ser[i]),c++;
+					}
+			}
 		T=c;
 		cout<<"t is "<<T<<endl;
 		sum=new double[T/512+1];
@@ -41,7 +49,7 @@ public:
 		int p=0;
 		for(int i=0;i<ser.size();i++)
 			{
-				if(_PathSets[i].num>=4)
+				if(flag[i]>0)
 					{
 						PathSets[p++]=_PathSets[i];
 						for(int j=0;j<W;j++)
@@ -49,6 +57,7 @@ public:
 							int k=0;
 							while(PathSets[p-1].Pathset[j][k]>0)k++;
 							if(k>M)M=k;
+							if(k==0)cout<<"asdasdasd "<<i<<endl;
 						}
 				}
 			}
@@ -70,7 +79,6 @@ public:
 				{
 					paths[ioff+joff+k]=-1;
 					k++;
-
 				}
 				if(PathSets[i].Pathset[j][0]<0)cout<<"erro!!!!!!"<<endl;
 			}

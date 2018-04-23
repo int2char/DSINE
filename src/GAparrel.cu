@@ -33,7 +33,7 @@ __global__ void PathChoose(int T,int M,int W,double *x,double *y,double*u,double
 		if(paths[off+i]<0)break;
 		price[tid]+=u[paths[off+i]];
 		}
-	if(price[tid]<=0)price[tid]=DBL_MAX;
+	//if(price[tid]<=0)price[tid]=DBL_MAX;
 	if(k==0)
 	{
 		double gu=price[tid];
@@ -101,7 +101,7 @@ void NewGAParrel::Cudamalloc(){
 }
 vector<pair<string,float> > NewGAParrel::GAsearch(){
 	Cudamalloc();
-	cout<<"m is "<<M<<endl;
+	time_t begin=clock();
 	for(int i=0;i<100000;i++)
 	{
 		PathChoose<< <T*W/256+1,256>> >(T,M,W,dev_x,dev_y,dev_u,dev_f,dev_paths);
@@ -111,5 +111,7 @@ vector<pair<string,float> > NewGAParrel::GAsearch(){
 		cudaMemcpy(sum,dev_sum,sizeof(double)*(T/1024+1),cudaMemcpyDeviceToHost);
 		cout<<"sum o is: "<<sum[0]<<endl;
 	}
+	time_t end=clock();
+	cout<<end-begin<<endl;
 	cout<<"what happened"<<endl;
 }
