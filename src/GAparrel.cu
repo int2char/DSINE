@@ -18,6 +18,19 @@
 #include <thrust/sequence.h>
 #include <thrust/copy.h>
 #include"PathArrange.h"
+__device__ double Add(double* address, double val)
+{
+    unsigned long long int* address_as_ull =
+                             (unsigned long long int*)address;
+    unsigned long long int old = *address_as_ull, assumed;
+    do {
+        assumed = old;
+        old = atomicCAS(address_as_ull, assumed,
+                        __double_as_longlong(val +
+                               __longlong_as_double(assumed)));
+    } while (assumed != old);
+    return __longlong_as_double(old);
+}
 __global__ void PathChoose(int T,int M,int W,double *x,double *y,double*u,double*f,int*paths)
 {
 	int id = threadIdx.x + blockIdx.x*blockDim.x;
@@ -33,7 +46,6 @@ __global__ void PathChoose(int T,int M,int W,double *x,double *y,double*u,double
 		if(paths[off+i]<0)break;
 		price[tid]+=u[paths[off+i]];
 		}
-	//if(price[tid]<=0)price[tid]=DBL_MAX;
 	if(k==0)
 	{
 		double gu=price[tid];
@@ -45,12 +57,12 @@ __global__ void PathChoose(int T,int M,int W,double *x,double *y,double*u,double
 				bid=i;
 				}
 		y[d]+=(0.05/12)*(x[d]-y[d]);
-		x[d]=pow(pow(y[d],-6)/price[tid+bid],10)*y[d];
+		x[d]=pow(pow(y[d],-6)/gu,10)*y[d];
 		int off=d*M*W+bid*M;
 		for(int i=0;i<M;i++)
 			{
 			if(paths[off+i]<0)break;
-			f[paths[off+i]]+=x[d];
+			Add(&f[paths[off+i]],x[d]);
 			}
 	}
 }
@@ -105,11 +117,21 @@ vector<pair<string,float> > NewGAParrel::GAsearch(){
 	for(int i=0;i<100000;i++)
 	{
 		PathChoose<< <T*W/256+1,256>> >(T,M,W,dev_x,dev_y,dev_u,dev_f,dev_paths);
-		cudaMemcpy(f,dev_f, sizeof(double)*E,cudaMemcpyDeviceToHost);
+		cudaMemcpy(f,dev_f,sizeof(double)*E,cudaMemcpyDeviceToHost);
 		changeU<< <E/512+1,512>> >(E,dev_u,dev_f);
 		Sum<<<T/256+1,256>>>(T,dev_x,dev_sum);
 		cudaMemcpy(sum,dev_sum,sizeof(double)*(T/1024+1),cudaMemcpyDeviceToHost);
-		cout<<"sum o is: "<<sum[0]<<endl;
+		/*cudaMemcpy(x,dev_x,sizeof(double)*(T),cudaMemcpyDeviceToHost);
+		cudaMemcpy(u,dev_u,sizeof(double)*E,cudaMemcpyDeviceToHost);
+		double kk=0;
+		for(int k=0;k<E;k++)
+		{
+			//cout<<f[k]<<" ";
+			//kk+=pow(x[k],-5)/5;
+		}
+		cout<<endl;
+		cout<<kk<<endl;*/
+		cout<<"sum o is: "<<i<<" "<<sum[0]<<endl;
 	}
 	time_t end=clock();
 	cout<<end-begin<<endl;
