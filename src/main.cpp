@@ -417,6 +417,7 @@ void inline GA_Parrel(Graph &G, vector<service>&ser,ofstream&outfile)
 	GetPath(G,Path);
 	cout<<"asdassdasdsads"<<endl;
 	NewGAParrel Gs(ser,Path,G);
+	Gs.GAsearch();
 	delete[]Path;
 }
 vector<service> sorts(int  n,std::vector<service> ser)

@@ -411,7 +411,7 @@ class NewGA
 			map<pair<int,int>,double>wsigu;
 			map<pair<int,pair<int,int>>,double>overo;
 			vector<vector<int>>serpath(ser.size(),vector<int>());
-							vector<double>esigxt(EDge,0);
+			vector<double>esigxt(EDge,0);
 
 			vector<double> tsum(ser.size(),-1e10);
 			double alpha=6;
@@ -420,7 +420,6 @@ class NewGA
 			cout<<"asd"<<endl;
 			for(int i=0;i<ser.size();i++)
 			{
-				//cout<<ser[i].s<<" "<<ser[i].t<<endl;
 				double as=0;
 				int num=min(_PathSets[i].num,1);
 				int j=rand()%num;

@@ -9,20 +9,27 @@
 #include"PathArrange.h"
 #include"time.h"
 #include"float.h"
-
+struct Ldge{
+	int head,tail;
+	Ldge(){};
+	Ldge(int h,int t):head(h),tail(t){};
+};
 class NewGAParrel
 {
 public:
-	taskPath* PathSets;
-	int taskd;
+	std::vector<vector<pair<int,int>>>gugu;
+	std::vector<set<int>> sset;
 	Graph &G;
 	vector<service>serv;
-	int T,E,W,M;
-	double *x,*y,*u,*f;
-	double *dev_x,*dev_y,*dev_u,*dev_f;
+	int T,E,W,M,NN;
+	double *x,*y,*u,*f,*dev_f;
+	double *dev_x,*dev_y,*dev_u,*d,*dev_d;
 	double*sum,*dev_sum;
 	int *paths,*dev_paths;
 	int F;
+	int *p,*dev_p;
+	Ldge *edge,*dev_edge;
+	int *dev_m,*m;
 public:
 	NewGAParrel(vector<service>&ser, taskPath*_PathSets, Graph &_G):G(_G)
 	{
@@ -41,47 +48,19 @@ public:
 					}
 			}
 		T=c;
-		cout<<"t is "<<T<<endl;
 		sum=new double[T/512+1];
 		E=G.m;
 		W=4;
-		PathSets=new taskPath[T];
-		int p=0;
+		NN=G.n;
+		std::vector<set<int>> tmps(G.n,set<int>());
+		sset=tmps;
+		std::vector<vector<pair<int,int>>> gu(G.n,vector<pair<int,int>>());
+		gugu=gu;
 		for(int i=0;i<ser.size();i++)
-			{
-				if(flag[i]>0)
-					{
-						PathSets[p++]=_PathSets[i];
-						for(int j=0;j<W;j++)
-						{
-							int k=0;
-							while(PathSets[p-1].Pathset[j][k]>0)k++;
-							if(k>M)M=k;
-							if(k==0)cout<<"asdasdasd "<<i<<endl;
-						}
-				}
-			}
-
-		paths=new int[M*W*T];
-		cout<<"over"<<endl;
-		for(int i=0;i<T;i++)
 		{
-			int ioff=i*W*M;
-			for(int j=0;j<W;j++)
-			{
-				int joff=j*M;
-				int k=0;
-				while(PathSets[i].Pathset[j][k]>0){
-					paths[ioff+joff+k]=PathSets[i].Pathset[j][k];
-					k++;
-				}
-				while(k<M)
-				{
-					paths[ioff+joff+k]=-1;
-					k++;
-				}
-				if(PathSets[i].Pathset[j][0]<0)cout<<"erro!!!!!!"<<endl;
-			}
+			sset[ser[i].s].insert(ser[i].t);
+			gugu[ser[i].s].push_back(make_pair(ser[i].t,i));
+
 		}
 		x=new double[T+1];
 		y=new double[T];
@@ -95,7 +74,17 @@ public:
 		for(int i=0;i<E;i++)
 			u[i]=0.1;
 		f=new double[E];
-		cout<<"hahaha"<<endl;
+		d=new double[NN*NN];
+		p=new int[NN*NN];
+		m=new int;
+		*m=0;
+		Ldge* edge=new Ldge[E];
+		for(int i=0;i<E;i++)
+		{
+			edge[i].head=G.incL[i].head;
+			edge[i].tail=G.incL[i].tail;
+		}
+		
 	};
 public:
 	void Cudamalloc();
