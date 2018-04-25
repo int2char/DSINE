@@ -31,27 +31,24 @@ __device__ double Add(double* address, double val)
     } while (assumed != old);
     return __longlong_as_double(old);
 }
-__global__ void getpath(Edge*edge,int*p,double*x,double*f,int*s,int*t,int NN,int T)
+__global__ void getpath(Ldge*edge,int*p,double*x,double*f,double*u,int*s,int*t,int NN,int T)
 {
 	int id=threadIdx.x + blockDim.x*blockIdx.x;
 	if(id>=T)return;
-	int pre=tid[id];
+	int pre=t[id];
 	int off=NN*s[id];
 	int ss=s[id];
 	double v=0;
 	int tm=-1;
-	while(pre!=ss)
+	/*while(pre!=ss)
 		{
 			tm=p[pre];
+			v+=u[tm];
 			pre=edge[tm].head;
-			Add(&f[tm],x[id]);
-			
-			
-		}
-	
-	
-	
-	
+			Add(&f[tm],1.0);
+		}*/
+	Add(&f[id],1.0);
+	x[id]=pow(v,-(1.0/6));
 }
 __global__ void ChangePameterC(int*p,double*d,int n){
 	int tid = blockIdx.y;
@@ -69,11 +66,12 @@ __global__ void bellmanHigh(Ldge*edge, int*m, double*c, int*p, double*u,int E,in
 	int head = edge[i].head;
 	int tail = edge[i].tail;
 	int biao = tid*NN+head;
-	float val = c[tid*NN+tail]+u[i];
+	double val = c[tid*NN+tail]+u[i];
 	if (c[biao] >val){
 		*m = 1;
 		c[biao] = val;
 	}
+	//*m=1;
 }
 __global__ void color(Ldge *edge, int *m, double*c,int*p,double*u,int E,int NN){
 
@@ -83,7 +81,7 @@ __global__ void color(Ldge *edge, int *m, double*c,int*p,double*u,int E,int NN){
 	int head = edge[i].head;
 	int tail = edge[i].tail;
 	int biao = tid*NN+head;
-	float val = c[tail+tid*NN]+1+u[i];
+	double val = c[tail+tid*NN]+u[i];
 	if (c[biao] == val){
 		p[biao] = tid;
 	}
@@ -121,40 +119,65 @@ __global__ void Sum(int T,double*x,double*sum)
 }
 void NewGAParrel::Cudamalloc(){
 	cout<<"m is"<<M<<endl;
-	cudaMalloc((void**)&dev_x, (T+1)*sizeof(double));
-	cudaMalloc((void**)&dev_y, T*sizeof(double));
-	cudaMalloc((void**)&dev_u, E*sizeof(double));
-	cudaMalloc((void**)&dev_f, E*sizeof(double));
-	cudaMalloc((void**)&dev_sum, (T/512+1)*sizeof(double));
-	cudaMalloc((void**)&dev_d, NN*NN*sizeof(double));
-	cudaMalloc((void**)&dev_p, NN*NN*sizeof(int));
-	cudaMalloc((void**)&dev_edge, E*sizeof(Ldge));
-	cudaMemcpy(dev_x,x, sizeof(double)*(T+1),cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_y,y, sizeof(double)*T,cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_u,u, sizeof(double)*E,cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_f,f, sizeof(double)*E,cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_sum,sum,sizeof(double)*(T/512+1),cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_d,d,sizeof(double)*NN*NN,cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_p,p,sizeof(int)*NN*NN,cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_edge,edge,sizeof(Ldge)*E,cudaMemcpyHostToDevice);
+	//cudaMalloc((void**)&dev_x, (T+1)*sizeof(double));
+	//cudaMalloc((void**)&dev_y, T*sizeof(double));
+	//cudaMalloc((void**)&dev_u, E*sizeof(double));
+	//cudaMalloc((void**)&dev_f, E*sizeof(double));
+	//cudaMalloc((void**)&dev_sum, (T/512+1)*sizeof(double));
+	//cudaMalloc((void**)&dev_d, NN*NN*sizeof(double));
+	//cudaMalloc((void**)&dev_p, NN*NN*sizeof(int));
+	cout<<"size is "<<E*sizeof(Ldge)<<endl;
+	cudaMalloc((void**)&dev_edges, 2*E*sizeof(int));
+	//cudaMalloc((void**)&dev_s, T*sizeof(int));
+	//cudaMalloc((void**)&dev_t, T*sizeof(int));
+	//cudaMalloc((void**)&dev_m, sizeof(int));
+	//cudaMemcpy(dev_x,x, sizeof(double)*(T+1),cudaMemcpyHostToDevice);
+	//cudaMemcpy(dev_y,y, sizeof(double)*T,cudaMemcpyHostToDevice);
+	//cudaMemcpy(dev_u,u, sizeof(double)*E,cudaMemcpyHostToDevice);
+	//cudaMemcpy(dev_f,f, sizeof(double)*E,cudaMemcpyHostToDevice);
+	//cudaMemcpy(dev_sum,sum,sizeof(double)*(T/512+1),cudaMemcpyHostToDevice);
+	
+	//cudaMemcpy(dev_d,d,sizeof(double)*NN*NN,cudaMemcpyHostToDevice);
+	//cudaMemcpy(dev_p,p,sizeof(int)*NN*NN,cudaMemcpyHostToDevice);
+	cout<<"size is "<<sizeof(Ldge)<<endl;
+	cudaMemcpy(dev_edges,edges,sizeof(int)*E*2,cudaMemcpyHostToDevice);
+	//cudaMemcpy(dev_s,s,sizeof(int)*T,cudaMemcpyHostToDevice);
+	//cudaMemcpy(dev_t,t,sizeof(int)*T,cudaMemcpyHostToDevice);
+	//cudaMemcpy(dev_m,mm,sizeof(int),cudaMemcpyHostToDevice);*/
 }
-vector<pair<string,float> > NewGAParrel::GAsearch(){
+void NewGAParrel::GAsearch(){
 	Cudamalloc();
-	cout<<"ajsgkvksafuaqd"<<endl;
+	/*cout<<"ajsgkvksafuaqd"<<endl;
 	time_t begin=clock();
+	*mm=0;
 	for(int i=0;i<100000;i++)
 	{
 		dim3 blocksq(NN/64+1, NN*NN);
 		ChangePameterC << <blocksq,64>> >(dev_p, dev_d,NN);
 		dim3 blocks_square(E/256+1,NN);
+		int cc=0;
 		do{
-			cudaMemcpy(dev_m,m, sizeof(int), cudaMemcpyHostToDevice);
+			cc++;
+			*mm=0;
+			cudaMemcpy(dev_m,mm, sizeof(int),cudaMemcpyHostToDevice);
 			bellmanHigh << <blocks_square,256>> >(dev_edge, dev_m, dev_d, dev_p, dev_u,E,NN);
-			cudaMemcpy(m, dev_m, sizeof(int), cudaMemcpyDeviceToHost);
-		} while (*m);
-		
+			cudaMemcpy(mm,dev_m, sizeof(int), cudaMemcpyDeviceToHost);
+		} while (*mm);
+		cout<<cc<<endl;
+		color<< <blocks_square,256>> >(dev_edge, dev_m, dev_d, dev_p, dev_u,E,NN);
+		//cudaMemcpy(d,dev_d,sizeof(double)*NN*NN,cudaMemcpyDeviceToHost);
+		//for(int i=0;i<NN-1;i++)
+			//cout<<d[i*NN+i+1]<<endl;
+		//getpath<<<T/256+1,256>>>(dev_edge,dev_p,dev_x,dev_f,dev_u,dev_s,dev_t,NN,T);
+		//cudaMemcpy(f,dev_f,sizeof(double)*E,cudaMemcpyDeviceToHost);
+		/*for(int i=0;i<E;i++)
+			cout<<f[i]<<" ";
+		cout<<endl;
+		//changeU<< <E/512+1,512>> >(E,dev_u,dev_f);
+		//Sum<<<T/256+1,256>>>(T,dev_x,dev_sum);
+		//cudaMemcpy(sum,dev_sum,sizeof(double)*(T/1024+1),cudaMemcpyDeviceToHost);
 	}
 	time_t end=clock();
-	cout<<end-begin<<endl;
+	cout<<end-begin<<endl;*/
 	cout<<"what happened"<<endl;
 }

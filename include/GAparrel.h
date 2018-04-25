@@ -9,11 +9,6 @@
 #include"PathArrange.h"
 #include"time.h"
 #include"float.h"
-struct Ldge{
-	int head,tail;
-	Ldge(){};
-	Ldge(int h,int t):head(h),tail(t){};
-};
 class NewGAParrel
 {
 public:
@@ -26,10 +21,11 @@ public:
 	double *dev_x,*dev_y,*dev_u,*d,*dev_d;
 	double*sum,*dev_sum;
 	int *paths,*dev_paths;
-	int F;
+	int *edges,*dev_edges;
 	int *p,*dev_p;
-	Ldge *edge,*dev_edge;
-	int *dev_m,*m;
+	//Ldge *edge,*dev_edge;
+	int *dev_m,*mm;
+	int *s,*t,*dev_s,*dev_t;
 public:
 	NewGAParrel(vector<service>&ser, taskPath*_PathSets, Graph &_G):G(_G)
 	{
@@ -56,10 +52,12 @@ public:
 		sset=tmps;
 		std::vector<vector<pair<int,int>>> gu(G.n,vector<pair<int,int>>());
 		gugu=gu;
-		for(int i=0;i<ser.size();i++)
+		s=new int[T];
+		t=new int[T];
+		for(int i=0;i<serv.size();i++)
 		{
-			sset[ser[i].s].insert(ser[i].t);
-			gugu[ser[i].s].push_back(make_pair(ser[i].t,i));
+			s[i]=serv[i].s;
+			t[i]=serv[i].t;
 
 		}
 		x=new double[T+1];
@@ -69,25 +67,25 @@ public:
 			y[i]=100;
 			x[i]=100;
 		}
-		x[T]=DBL_MAX;
 		u=new double[E];
 		for(int i=0;i<E;i++)
 			u[i]=0.1;
 		f=new double[E];
 		d=new double[NN*NN];
 		p=new int[NN*NN];
-		m=new int;
-		*m=0;
-		Ldge* edge=new Ldge[E];
+		mm=new int;
+		*mm=0;
+		int* edges=new int[2*E];
+		cout<<"real size is "<<E*8<<endl;
 		for(int i=0;i<E;i++)
 		{
-			edge[i].head=G.incL[i].head;
-			edge[i].tail=G.incL[i].tail;
+			edges[i*2]=G.incL[i].head;
+			edges[i*2+1]=G.incL[i].tail;
 		}
-		
 	};
 public:
 	void Cudamalloc();
-	vector<pair<string,float> > GAsearch();
+	void GAsearch();
+
 };
 #endif
