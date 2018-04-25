@@ -34,9 +34,10 @@ graph dependent*/
 	#define INFHOPS 50
 	#define Deep 300
 	#define loop 30
+	#define TD 500
 	#define loomore 30
 	#define FROM 0
-	#define STATMAX 100*pop
+	#define STATMAX 100*POP
 	#define LAGPFILE "./data/iteration.txt"
 	#define LAGSFILE "./data/iteration.txt"
 	#define GAPFILE "./data/iteration.txt"
@@ -49,7 +50,7 @@ graph dependent*/
 	#define DATAFILE "./data/all_data.txt"
 	#define FLOWVARRY "./data/flow_varry.txt"
 	#define EDGE 1500
-	#define pop 5000
+	#define POP 5000
 	#define ALPHA 500
 	#define Beta 1000
 	#define Gama 3500

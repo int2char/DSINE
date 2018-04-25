@@ -253,8 +253,6 @@ void inline GetPath(Graph& G, taskPath*Path){
 				remap.clear();
 			}
 			Path[tnum].num = n;
-			//if (n <=0)
-			//cout << "erro fucker" << endl;
 			tnum++;
 		}
 		iter++;
@@ -421,6 +419,17 @@ void inline GA_Parrel(Graph &G, vector<service>&ser,ofstream&outfile)
 	NewGAParrel Gs(ser,Path,G);
 	delete[]Path;
 }
+vector<service> sorts(int  n,std::vector<service> ser)
+{
+	vector<vector<service>>ar(n,std::vector<service>());
+	for(int i=0;i<ser.size();i++)
+		ar[ser[i].s].push_back(ser[i]);
+	std::vector<service> re;
+	for(int i=0;i<ar.size();i++)
+		for(int j=0;j<ar[i].size();j++)
+			re.push_back(ar[i][j]);
+	return re;
+}
 void inline GA_Serial(Graph &G, vector<service>&ser,ofstream&outfile,int v)
 {
 	int edge =G.m;
@@ -438,12 +447,17 @@ void inline GA_Serial(Graph &G, vector<service>&ser,ofstream&outfile,int v)
   			ePath[c++]=Path[i];
 
 	NewGA Gs(G);
+
 	if(v>0)
 		Gs.GAsearch(eser,ePath);
 	else
-		Gs.GAsearchP(eser,ePath);
+		{
+			eser=sorts(G.n,eser);
+			Gs.GAsearchP(eser,ePath);
+		}
 	delete[]Path;
 }
+
 void inline Cplexsolve(Graph &G, vector<service>&ser,ofstream&outfile)
 {
 	int edge =G.m;
