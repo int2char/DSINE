@@ -16,14 +16,14 @@ void Heap::fix(int fixID){
 Heap::Heap(int n):h(n+1,edge(0,0)),post(n+1,0){
 	nodeNum=0;
 }
-void Heap::push(int vertID, int w){
+void Heap::push(int vertID, double w){
 	nodeNum++;
 	h[nodeNum].head = vertID;
 	h[nodeNum].weight = w;
 	post[vertID] = nodeNum;
 	fix(nodeNum);
 }
-void Heap::update(int vertID, int w){
+void Heap::update(int vertID, double w){
 	int p=post[vertID];
 	h[p].weight = w;
 	fix(p);

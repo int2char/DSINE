@@ -122,18 +122,20 @@ void inline WriteFile(Graph &G,vector<service>&ser){
 }
 void inline ReadService(vector<service>&ser, const char*file)
 {
-	FILE* rser = fopen(file, "r");
+	FILE* rser = fopen("service.txt", "r");
 	int s, t;
 	float d;
-	int shit = Task+FROM;
 	int iter = 0;
-	while ((fscanf(rser, "%d %d %f", &s, &t, &d) == 3)&&shit--)
+	int  sit=TD;
+	while (fscanf(rser, "%d %d %f", &s, &t, &d) == 3&&sit--)
 	{
 		
 		if (iter>=FROM)
 		   ser.push_back(service(s, t, d));
 		iter++;
+
 	}
+	cout<<iter<<endl;
 	fclose(rser);
 	//sort(ser.begin(), ser.end(), UPer);
 }
@@ -156,13 +158,9 @@ void inline ChangDmand(vector<service>&ser){
 	}
 }
 Graph inline ReadFile(int n,int m,vector<service>&ser){
-	string s1=INPUTFILE;
-	string sf=FLOWFILE;
-	string st=TOPFILE;
-	sf=s1+sf;
-	st=s1+st;
-	cout<<"ssadsa"<<sf;
-	ReadService(ser,sf.c_str());
+
+	string st="Graph.txt";
+	ReadService(ser,"jj");
 	if(GRAPHTYPE>0)
 		return Graph(n,m,st.c_str());
 	else
@@ -197,11 +195,11 @@ char* readline(FILE* f)
 	return line;
 }
 void inline GetPath(Graph& G, taskPath*Path){
-	string s1=INPUTFILE;
-	string s2=s1+string(ROUTFILE);
-	FILE* data = fopen(s2.c_str(),"r");
+	//string s1=INPUTFILE;
+	//string s2=s1+string(ROUTFILE);
+	FILE* data = fopen("data.txt","r");
 	int tnum = 0;
-	int shit = Task + FROM;
+	int shit =TD;
 	char line[100000];
 	int iter = 0;
 	while (shit--){
@@ -417,22 +415,22 @@ void inline GA_Parrel(Graph &G, vector<service>&ser,ofstream&outfile)
 {
 
 	int edge =G.m;
-	taskPath*Path = new taskPath[Task];
+	taskPath*Path = new taskPath[ser.size()];
 	GetPath(G,Path);
 	cout<<"asdassdasdsads"<<endl;
 	NewGAParrel Gs(ser,Path,G);
-	Gs.GAsearch();
 	delete[]Path;
 }
-void inline GA_Serial(Graph &G, vector<service>&ser,ofstream&outfile)
+void inline GA_Serial(Graph &G, vector<service>&ser,ofstream&outfile,int v)
 {
 	int edge =G.m;
-	taskPath*Path = new taskPath[Task];
+	taskPath*Path = new taskPath[ser.size()];
 	GetPath(G,Path);
 	vector<service> eser;
   	for(int i=0;i<ser.size();i++)
   	if(Path[i].num>=10)
   		eser.push_back(ser[i]);
+  	cout<<"wwww"<<endl;
   	taskPath*ePath = new taskPath[eser.size()];
   	int c=0;
   	for(int i=0;i<ser.size();i++)
@@ -440,8 +438,10 @@ void inline GA_Serial(Graph &G, vector<service>&ser,ofstream&outfile)
   			ePath[c++]=Path[i];
 
 	NewGA Gs(G);
-	Gs.GAsearch(eser,ePath);
-	//Gs.GAsearch(ser,Path,ids);
+	if(v>0)
+		Gs.GAsearch(eser,ePath);
+	else
+		Gs.GAsearchP(eser,ePath);
 	delete[]Path;
 }
 void inline Cplexsolve(Graph &G, vector<service>&ser,ofstream&outfile)
@@ -471,6 +471,7 @@ int main(int args,char*arg[])
    int m = EDGE;
    std::vector<service> ser;
    Graph G=ReadFile(n,m,ser);
+   cout<<"lkscs: "<<ser.size()<<endl;
    totaldemand = 0;
    for (int i = 0; i < ser.size(); i++)
 	   totaldemand += ser[i].d;
@@ -491,7 +492,9 @@ int main(int args,char*arg[])
 	  	  case 'G':
 	  		  {GA_Parrel(G,ser,outfile);break;}
 	  	  case 'T':
-	  	  	  {GA_Serial(G,ser,outfile);break;}
+	  	  	  {GA_Serial(G,ser,outfile,0);break;}
+	  	  case 'P':
+	  	  	  {GA_Serial(G,ser,outfile,1);break;}
 	  	  
 	  }
   }

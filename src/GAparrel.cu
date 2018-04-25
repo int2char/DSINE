@@ -39,31 +39,32 @@ __global__ void PathChoose(int T,int M,int W,double *x,double *y,double*u,double
 	int d=id/W;
 	int k=id%W;
 	__shared__ double price[256];
-	price[tid]=0;
+	price[tid]=0.1;
 	int off=d*M*W+k*M;
-	for(int i=0;i<M;i++)
+	/*for(int i=0;i<M;i++)
 		{
 		if(paths[off+i]<0)break;
 		price[tid]+=u[paths[off+i]];
-		}
+		}*/
 	if(k==0)
 	{
 		double gu=price[tid];
 		int bid=0;
-		for(int i=1;i<W;i++)
+		/*for(int i=1;i<W;i++)
 			if(price[tid+i]<gu)
 				{
 				gu=price[tid+i];
 				bid=i;
-				}
+				}*/
 		y[d]+=(0.05/12)*(x[d]-y[d]);
 		x[d]=pow(pow(y[d],-6)/gu,10)*y[d];
 		int off=d*M*W+bid*M;
-		for(int i=0;i<M;i++)
+		/*for(int i=0;i<M;i++)
 			{
 			if(paths[off+i]<0)break;
-			Add(&f[paths[off+i]],x[d]);
-			}
+			f[paths[off+i]]+=x[d];
+			//Add(&f[paths[off+i]],x[d]);
+			}*/
 	}
 }
 __global__ void changeU(int E,double*u,double*f)
@@ -114,10 +115,10 @@ void NewGAParrel::Cudamalloc(){
 vector<pair<string,float> > NewGAParrel::GAsearch(){
 	Cudamalloc();
 	time_t begin=clock();
-	for(int i=0;i<100000;i++)
+	for(int i=0;i<10000;i++)
 	{
 		PathChoose<< <T*W/256+1,256>> >(T,M,W,dev_x,dev_y,dev_u,dev_f,dev_paths);
-		cudaMemcpy(f,dev_f,sizeof(double)*E,cudaMemcpyDeviceToHost);
+		//cudaMemcpy(f,dev_f,sizeof(double)*E,cudaMemcpyDeviceToHost);
 		changeU<< <E/512+1,512>> >(E,dev_u,dev_f);
 		Sum<<<T/256+1,256>>>(T,dev_x,dev_sum);
 		cudaMemcpy(sum,dev_sum,sizeof(double)*(T/1024+1),cudaMemcpyDeviceToHost);
@@ -131,7 +132,7 @@ vector<pair<string,float> > NewGAParrel::GAsearch(){
 		}
 		cout<<endl;
 		cout<<kk<<endl;*/
-		cout<<"sum o is: "<<i<<" "<<sum[0]<<endl;
+		//cout<<"sum o is: "<<i<<" "<<sum[0]<<endl;
 	}
 	time_t end=clock();
 	cout<<end-begin<<endl;
