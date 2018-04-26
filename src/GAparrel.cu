@@ -119,35 +119,32 @@ __global__ void Sum(int T,double*x,double*sum)
 }
 void NewGAParrel::Cudamalloc(){
 	cout<<"m is"<<M<<endl;
-	//cudaMalloc((void**)&dev_x, (T+1)*sizeof(double));
-	//cudaMalloc((void**)&dev_y, T*sizeof(double));
-	//cudaMalloc((void**)&dev_u, E*sizeof(double));
-	//cudaMalloc((void**)&dev_f, E*sizeof(double));
-	//cudaMalloc((void**)&dev_sum, (T/512+1)*sizeof(double));
-	//cudaMalloc((void**)&dev_d, NN*NN*sizeof(double));
-	//cudaMalloc((void**)&dev_p, NN*NN*sizeof(int));
-	cout<<"size is "<<E*sizeof(Ldge)<<endl;
-	cudaMalloc((void**)&dev_edges, 2*E*sizeof(int));
-	//cudaMalloc((void**)&dev_s, T*sizeof(int));
-	//cudaMalloc((void**)&dev_t, T*sizeof(int));
-	//cudaMalloc((void**)&dev_m, sizeof(int));
-	//cudaMemcpy(dev_x,x, sizeof(double)*(T+1),cudaMemcpyHostToDevice);
-	//cudaMemcpy(dev_y,y, sizeof(double)*T,cudaMemcpyHostToDevice);
-	//cudaMemcpy(dev_u,u, sizeof(double)*E,cudaMemcpyHostToDevice);
-	//cudaMemcpy(dev_f,f, sizeof(double)*E,cudaMemcpyHostToDevice);
-	//cudaMemcpy(dev_sum,sum,sizeof(double)*(T/512+1),cudaMemcpyHostToDevice);
-	
-	//cudaMemcpy(dev_d,d,sizeof(double)*NN*NN,cudaMemcpyHostToDevice);
-	//cudaMemcpy(dev_p,p,sizeof(int)*NN*NN,cudaMemcpyHostToDevice);
-	cout<<"size is "<<sizeof(Ldge)<<endl;
-	cudaMemcpy(dev_edges,edges,sizeof(int)*E*2,cudaMemcpyHostToDevice);
-	//cudaMemcpy(dev_s,s,sizeof(int)*T,cudaMemcpyHostToDevice);
-	//cudaMemcpy(dev_t,t,sizeof(int)*T,cudaMemcpyHostToDevice);
-	//cudaMemcpy(dev_m,mm,sizeof(int),cudaMemcpyHostToDevice);*/
+	cudaMalloc((void**)&dev_x, (T+1)*sizeof(double));
+	cudaMalloc((void**)&dev_y, T*sizeof(double));
+	cudaMalloc((void**)&dev_u, E*sizeof(double));
+	cudaMalloc((void**)&dev_f, E*sizeof(double));
+	cudaMalloc((void**)&dev_sum, (T/512+1)*sizeof(double));
+	cudaMalloc((void**)&dev_d, NN*NN*sizeof(double));
+	cudaMalloc((void**)&dev_p, NN*NN*sizeof(int));
+	cudaMalloc((void**)&dev_edge, E*sizeof(Ldge));
+	cudaMalloc((void**)&dev_s, T*sizeof(int));
+	cudaMalloc((void**)&dev_t, T*sizeof(int));
+	cudaMalloc((void**)&dev_m, sizeof(int));
+	cudaMemcpy(dev_x,x, sizeof(double)*(T+1),cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_y,y, sizeof(double)*T,cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_u,u, sizeof(double)*E,cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_f,f, sizeof(double)*E,cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_sum,sum,sizeof(double)*(T/512+1),cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_d,d,sizeof(double)*NN*NN,cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_p,p,sizeof(int)*NN*NN,cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_edge,edge,sizeof(Ldge)*E,cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_s,s,sizeof(int)*T,cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_t,t,sizeof(int)*T,cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_m,mm,sizeof(int),cudaMemcpyHostToDevice);
 }
 void NewGAParrel::GAsearch(){
 	Cudamalloc();
-	/*cout<<"ajsgkvksafuaqd"<<endl;
+	cout<<"ajsgkvksafuaqd"<<endl;
 	time_t begin=clock();
 	*mm=0;
 	for(int i=0;i<100000;i++)
@@ -157,13 +154,15 @@ void NewGAParrel::GAsearch(){
 		dim3 blocks_square(E/256+1,NN);
 		int cc=0;
 		do{
-			cc++;
-			*mm=0;
-			cudaMemcpy(dev_m,mm, sizeof(int),cudaMemcpyHostToDevice);
+			if(cc%8==0)
+				{*mm=0;
+				cudaMemcpy(dev_m,mm, sizeof(int),cudaMemcpyHostToDevice);}
 			bellmanHigh << <blocks_square,256>> >(dev_edge, dev_m, dev_d, dev_p, dev_u,E,NN);
-			cudaMemcpy(mm,dev_m, sizeof(int), cudaMemcpyDeviceToHost);
+			if(cc%8==0)
+				cudaMemcpy(mm,dev_m, sizeof(int), cudaMemcpyDeviceToHost);
+			cc++;
 		} while (*mm);
-		cout<<cc<<endl;
+		//cout<<cc<<endl;
 		color<< <blocks_square,256>> >(dev_edge, dev_m, dev_d, dev_p, dev_u,E,NN);
 		//cudaMemcpy(d,dev_d,sizeof(double)*NN*NN,cudaMemcpyDeviceToHost);
 		//for(int i=0;i<NN-1;i++)
@@ -172,12 +171,12 @@ void NewGAParrel::GAsearch(){
 		//cudaMemcpy(f,dev_f,sizeof(double)*E,cudaMemcpyDeviceToHost);
 		/*for(int i=0;i<E;i++)
 			cout<<f[i]<<" ";
-		cout<<endl;
+		cout<<endl;*/
 		//changeU<< <E/512+1,512>> >(E,dev_u,dev_f);
 		//Sum<<<T/256+1,256>>>(T,dev_x,dev_sum);
-		//cudaMemcpy(sum,dev_sum,sizeof(double)*(T/1024+1),cudaMemcpyDeviceToHost);
+		//cudaMemcpy(sum,dev_sum,sizeof(double)*(T/1024+1),cudaMemcpyDeviceToHost);*/
 	}
 	time_t end=clock();
-	cout<<end-begin<<endl;*/
+	cout<<end-begin<<endl;
 	cout<<"what happened"<<endl;
 }
