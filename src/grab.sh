@@ -1,6 +1,6 @@
 #!/bin/bash
 rm -f ./data/*.txt
-nodes=(50)
+nodes=(200)
 types=(0)
 graphtype=("ER" "NI" "BA")
 powers=(5) 

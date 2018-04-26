@@ -147,7 +147,7 @@ void NewGAParrel::GAsearch(){
 	cout<<"ajsgkvksafuaqd"<<endl;
 	time_t begin=clock();
 	*mm=0;
-	for(int i=0;i<100000;i++)
+	for(int i=0;i<100;i++)
 	{
 		dim3 blocksq(NN/64+1, NN*NN);
 		ChangePameterC << <blocksq,64>> >(dev_p, dev_d,NN);

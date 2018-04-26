@@ -100,7 +100,7 @@ void inline	WriteGraph(Graph &G,char*file)
 void inline WriteFile(Graph &G,vector<service>&ser){
 	WriteService(ser);
 	WriteGraph(G, "Graph.txt");
-	ofstream outfile("data.txt");
+	/*ofstream outfile("data.txt");
 	int cnt = 0;
 	for (int i =0; i < Task; i++)
 	{
@@ -118,7 +118,7 @@ void inline WriteFile(Graph &G,vector<service>&ser){
 		vec.clear();
 	}
 	cout <<"total size:"<<cnt << endl;
-	outfile.close();
+	outfile.close();*/
 }
 void inline ReadService(vector<service>&ser, const char*file)
 {
