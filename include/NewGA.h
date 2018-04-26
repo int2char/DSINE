@@ -237,7 +237,7 @@ class NewGA
 							esigxt[pathe[make_pair(i,id)][k]]+=x[i][id];
 						ids[i]=id;*/
 					}
-				cout<<"total flow "<<ttf<<endl;
+				//cout<<"total flow "<<ttf<<endl;
 				int overflow=0;
 				for(int i=0;i<ser.size();i++)
 					objective+=-pow(asigxt[i],-5)/5;
@@ -246,10 +246,10 @@ class NewGA
 					bestv=objective;
 					bids=ids;
 				}
-				cout<<"obj is: "<<t<<" "<<objective<<" "<<counter<<endl;
+				//cout<<"obj is: "<<t<<" "<<objective<<" "<<counter<<endl;
 			}
 			time_t end=clock();
-			cout<<"time is "<<end-begin<<endl;
+			//cout<<"time is "<<end-begin<<endl;
 			return bids;
 		};
 		pair<vector<int>,double> diks(int s,int t,std::vector<double>&v)
@@ -382,7 +382,6 @@ class NewGA
 			int p=0;
 			std::vector<set<int>> tmps(G.n,set<int>());
 			sset=tmps;
-			std::vector<std::map<int, int>> vv;
 			std::vector<vector<pair<int,int>>> gu(G.n,vector<pair<int,int>>());
 			gugu=gu;
 			for(int i=0;i<ser.size();i++)

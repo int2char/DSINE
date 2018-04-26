@@ -11,8 +11,4 @@ public:
 private:
 
 };
-struct Ldge{
-public:
-	int head,tail;
-};
 #endif

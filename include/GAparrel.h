@@ -9,6 +9,10 @@
 #include"PathArrange.h"
 #include"time.h"
 #include"float.h"
+struct Ldge{
+public:
+	int head,tail;
+};
 class NewGAParrel
 {
 public:
@@ -21,9 +25,9 @@ public:
 	double *dev_x,*dev_y,*dev_u,*d,*dev_d;
 	double*sum,*dev_sum;
 	int *paths,*dev_paths;
-	int *edges,*dev_edges;
+	int F;
 	int *p,*dev_p;
-	//Ldge *edge,*dev_edge;
+	Ldge *edge,*dev_edge;
 	int *dev_m,*mm;
 	int *s,*t,*dev_s,*dev_t;
 public:
@@ -75,12 +79,12 @@ public:
 		p=new int[NN*NN];
 		mm=new int;
 		*mm=0;
-		int* edges=new int[2*E];
+		edge=new Ldge[E];
 		cout<<"real size is "<<E*8<<endl;
 		for(int i=0;i<E;i++)
 		{
-			edges[i*2]=G.incL[i].head;
-			edges[i*2+1]=G.incL[i].tail;
+			edge[i].head=G.incL[i].head;
+			edge[i].tail=G.incL[i].tail;
 		}
 	};
 public:
